@@ -1,0 +1,82 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 022a2291b89c82040a8bd048c0fdd537, type: 3}
+  m_Name: HathoraServerConfig
+  m_EditorClassIdentifier: 
+  _hathoraCoreOpts:
+    _appId: 
+    _existingAppsSelectedIndex: 1
+    _existingAppsWithDeploymentSerializableSerializable:
+    - _appId: app-a4465255-3621-43c6-99b0-e4638bbba586
+      _createdAtWrapper: 03/14/2025 00:07:01
+      _createdBy: 
+      _deletedBy: 
+      _deletedAtWrapper: 
+      _orgId: org-7907f73b-7deb-4096-bfc1-2ffec0fdcbb5
+      _appSecret: secret-654fd1c6-52e7-40b9-a101-1a0022a898ac
+      _appName: kaddour
+      deploymentSerializable:
+        _env: []
+        _roomsPerProcess: 4
+        _additionalContainerPorts: []
+        defaultContainerPortSerializable:
+          _transportType: 1
+          port: 7777
+        _createdAtWrapper: 03/14/2025 14:25:05
+        _createdBy: aitmouddarkhaoula@gmail.com
+        _requestedMemoryMB: 8192
+        _requestedCPU: 4
+        _deploymentId: dep-0e51fc09-0600-4b5c-962b-ed6abe9ab1d6
+        _buildId: bld-613c308a-193f-4357-874b-db615fe2ca78
+        _appId: app-a4465255-3621-43c6-99b0-e4638bbba586
+    - _appId: app-5b4cf272-beff-4c12-a7fc-e43e53d66f0c
+      _createdAtWrapper: 03/19/2025 15:17:51
+      _createdBy: 
+      _deletedBy: 
+      _deletedAtWrapper: 
+      _orgId: org-7907f73b-7deb-4096-bfc1-2ffec0fdcbb5
+      _appSecret: secret-0bf84d08-2cfc-4f8f-b92f-23b4f546cb20
+      _appName: hathora-tutorial
+      deploymentSerializable:
+        _env: []
+        _roomsPerProcess: 0
+        _additionalContainerPorts: []
+        defaultContainerPortSerializable:
+          _transportType: 1
+          port: 7777
+        _createdAtWrapper: 
+        _createdBy: 
+        _requestedMemoryMB: 0
+        _requestedCPU: 0
+        _deploymentId: 
+        _buildId: 
+        _appId: 
+    _devAuthOpts:
+      _hathoraDevToken: CZe9zgMcVR5oQdFmciwvENJq3TMtVNxpN23RXnUf-1AsN
+      _forceNewToken: 0
+  _linuxHathoraAutoBuildOpts:
+    _serverBuildDirName: Build-Server
+    _serverBuildExeName: Hathora-Unity_LinuxServer.x86_64
+    _isDevBuild: 1
+    _cleanBuildDir: 1
+    _overwriteDockerfile: 1
+    _scriptingBackendIndex: 0
+    _lastBuildLogsStr: 
+  _hathoraDeployOpts:
+    _roomsPerProcess: 1
+    _planNameIndexIndex: 0
+    _containerPortSerializableSerializable:
+      _transportType: 1
+      port: 7777
+    _transportTypeIndex: 1
+  _hathoraLobbyRoomOpts:
+    _hathoraRegionIndex: 0
