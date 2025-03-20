@@ -63,11 +63,6 @@ namespace Hathora.Core.Scripts.Runtime.Server
             }
         }
         
-        /// <summary>Set to 'true' to track changes to active rooms (multiple rooms per process)</summary>
-        [SerializeField, Tooltip("Enable tracking updates to active rooms for process")]
-        private bool enableActiveRoomUpdates;
-        protected bool EnableActiveRoomUpdates => enableActiveRoomUpdates;
-
         /// <summary>
         /// Container for Hathora Client/Common APIs.
         /// (!) First check `this` for wrappers that may contain a chain of API calls for common uses.
@@ -93,9 +88,6 @@ namespace Hathora.Core.Scripts.Runtime.Server
             !string.IsNullOrEmpty(hathoraProcessIdEnvVar);
         
         public static event Action<HathoraServerContext> OnInitializedEvent;
-        public static event Action<List<RoomWithoutAllocations>> OnActiveRoomsRefreshed;
-        public static event Action<RoomWithoutAllocations> OnActiveRoomAdded;
-        public static event Action<RoomWithoutAllocations> OnActiveRoomRemoved;
         #endregion // Vars
 
         
@@ -124,8 +116,8 @@ namespace Hathora.Core.Scripts.Runtime.Server
             hathoraProcessIdEnvVar = getServerDeployedProcessId();
             hathoraRegionEnvVar = getServerDeployedRegion();
 #endif
-
-            _ = GetHathoraServerContextAsync(); // !await; sets `HathoraServerContext ServerContext` ^
+            
+            _ = GetHathoraServerContextAsync(_throwErrIfNoLobby: false); // !await; sets `HathoraServerContext ServerContext` ^
         }
         
         /// <summary>If we were not server || editor, we'd already be destroyed @ Awake</summary>
@@ -329,9 +321,11 @@ namespace Hathora.Core.Scripts.Runtime.Server
         /// - Calls automatically @ Awake => triggers `OnInitializedEvent` on success.
         /// - Caches locally @ serverContext; public get via GetCachedServerContextAsync().
         /// </summary>
+        /// <param name="_throwErrIfNoLobby">Be extra sure to try/catch this, if true</param>
         /// <param name="_cancelToken"></param>
         /// <returns>Triggers `OnInitializedEvent` event on success</returns>
         public async Task<HathoraServerContext> GetHathoraServerContextAsync(
+            bool _throwErrIfNoLobby,
             CancellationToken _cancelToken = default)
         {
             string logPrefix = $"[{nameof(HathoraServerMgr)}.{nameof(GetHathoraServerContextAsync)}]";
@@ -406,8 +400,9 @@ namespace Hathora.Core.Scripts.Runtime.Server
             tempServerContext.ActiveRoomsForProcess = activeRooms;
 			
             // ----------------
-            // We have Room info, but we *may* need Lobby: Get via RoomId
-            // NOTE: Lobby is expected to be null in cases when room is created via "CreateRoom"
+            // We have Room info, but we *may* need Lobby: Get from RoomId =>
+            // TODO: This may soon change, where Room info may include Lobby info.
+            // TODO: When implemented, remove this block (minus validation).
             LobbyV3 lobby = null;
             try
             {
@@ -418,8 +413,15 @@ namespace Hathora.Core.Scripts.Runtime.Server
             }
             catch (Exception e)
             {
-                Debug.Log($"{logPrefix} <b>Matching Hathora Lobby not found for roomId:{firstActiveRoom.RoomId}," +
-                          $"but expected if room created via CreateRoom</b> (LobbyService not being used) - {e}");
+                // Should 404 if !Lobby, returning null
+                if (_throwErrIfNoLobby)
+                {
+                    Debug.LogError($"Error: {e}");
+                    throw;
+                }
+                
+                Debug.Log($"{logPrefix} <b>!Lobby, but likely expected</b> " +
+                    "(since !_throwErrIfNoLobby) - continuing...");
             }
 
             if (_cancelToken.IsCancellationRequested)
@@ -427,13 +429,8 @@ namespace Hathora.Core.Scripts.Runtime.Server
                 Debug.LogError("Cancelled");
                 return null;
             }
-
+            
             tempServerContext.Lobby = lobby;
-
-            if (EnableActiveRoomUpdates)
-            {
-                StartPollingForActiveRoomUpdates();
-            }
 
             // ----------------
             // Done
@@ -441,51 +438,6 @@ namespace Hathora.Core.Scripts.Runtime.Server
             this.serverContext = tempServerContext;
             OnInitializedEvent?.Invoke(tempServerContext);
             return tempServerContext;
-        }
-
-        public async void StartPollingForActiveRoomUpdates()
-        {
-            string logPrefix = $"[{nameof(HathoraServerMgr)}.{nameof(StartPollingForActiveRoomUpdates)}]";
-            // Poll until process has ExposePort available
-            int pollSecondsTicked; // Duration to be logged later
-            int _pollTimeoutSecs = 28800; // 8 hours (in seconds)
-            //int _pollIntervalSecs = 30; // temp. make longer to reduce noise while debugging
-            int _pollIntervalSecs = 2;
-
-            for (pollSecondsTicked = 0; pollSecondsTicked < _pollTimeoutSecs; pollSecondsTicked++)
-            {
-                try
-                {
-                    List<RoomWithoutAllocations> activeRooms = await
-                        Apis.ServerRoomApiWrapper.ServerGetActiveRoomsForProcessAsync(hathoraProcessIdEnvVar);
-
-                    foreach (RoomWithoutAllocations existingRoom in this.serverContext.ActiveRoomsForProcess)
-                    {
-                        if (activeRooms.FindIndex(x => x.RoomId == existingRoom.RoomId) == -1)
-                        {
-                            OnActiveRoomRemoved?.Invoke(existingRoom);
-                        }
-                    }
-                    foreach (RoomWithoutAllocations newRoom in activeRooms)
-                    {
-                        if (this.serverContext.ActiveRoomsForProcess.FindIndex(x => x.RoomId == newRoom.RoomId) == -1)
-                        {
-                            OnActiveRoomAdded?.Invoke(newRoom);
-                        }
-                    }
-
-                    // Update active rooms and emit events
-                    this.serverContext.ActiveRoomsForProcess = activeRooms;
-                    OnActiveRoomsRefreshed?.Invoke(activeRooms);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError($"{logPrefix} => Error: {e.Message}");
-                    return; // fail
-                }
-
-                await Task.Delay(TimeSpan.FromSeconds(_pollIntervalSecs));
-            }
         }
         #endregion // Chained API calls outside Init
     }

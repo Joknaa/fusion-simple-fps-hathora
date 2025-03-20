@@ -30,6 +30,7 @@ namespace HathoraCloud.Models.Operations
         /// </summary>
         [SerializeField]
         public Process? Process { get; set; }
+
         /// <summary>
         /// HTTP response status code for this operation
         /// </summary>

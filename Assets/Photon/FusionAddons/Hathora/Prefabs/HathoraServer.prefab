@@ -47,6 +47,5 @@ MonoBehaviour:
   debugEditorMockProcId: 
   debugEditorMockRegion: 5
   hathoraServerConfig: {fileID: 11400000, guid: f4e0864edfb8fd9459c52a3f27d757dc, type: 2}
-  enableActiveRoomUpdates: 1
   _forceMultiPeerMode: 1
   _enableLogs: 1
