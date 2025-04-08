@@ -87,3 +87,4 @@ Dockerfile
 .DS_Store
 .idea
 /Build-Server
+/Build-Client

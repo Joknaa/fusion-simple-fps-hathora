@@ -776,7 +776,7 @@ namespace Fusion.Menu {
     /// <summary>
     /// The connection wrapper.
     /// </summary>
-    [InlineHelp, SerializeField] protected PhotonMenuConnectionBehaviour _connection;
+    [InlineHelp, SerializeField] protected PhotonMenuConnectionBehaviour  _connection;
     /// <summary>
     /// The list of screens. The first one is the default screen shown on start.
     /// </summary>
